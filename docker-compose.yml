@@ -1,0 +1,44 @@
+version: "3"
+
+services:
+  master_db:
+    container_name: master
+    image: mysql:8.0
+    platform: "linux/x86_64"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: master
+      MYSQL_DATABASE: replication_db
+      MYSQL_USER: master
+      MYSQL_PASSWORD: master
+    volumes:
+      - $PWD/master/conf.d:/etc/mysql/conf.d
+      - $PWD/master/data:/var/lib/mysql
+      - $PWD/master/log:/var/log/mysql
+      - $PWD/master/backup:/backup
+    networks:
+      default:
+        aliases:
+          - mysql
+
+  slave_db:
+    container_name: slave
+    image: mysql:8.0
+    platform: "linux/x86_64"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: slave
+      MYSQL_DATABASE: replication_db
+      MYSQL_USER: slave
+      MYSQL_PASSWORD: slave
+    volumes:
+      - $PWD/slave/conf.d:/etc/mysql/mysql.conf.d
+      - $PWD/slave/data:/var/lib/mysql
+      - $PWD/slave/log:/var/log/mysql
+      - $PWD/slave/backup:/backup
+    networks:
+      default:
+        aliases:
+          - mysql
+
+    
