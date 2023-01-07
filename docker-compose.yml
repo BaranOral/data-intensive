@@ -12,17 +12,18 @@ services:
       MYSQL_USER: master
       MYSQL_PASSWORD: master
     volumes:
-      - $PWD/master/conf.d:/etc/mysql/conf.d
+      - $PWD/master/conf.d:/etc/mysql/mysql.conf.d
       - $PWD/master/data:/var/lib/mysql
-      - $PWD/master/log:/var/log/mysql
+      - $PWD/master/log:/var/log/msql
       - $PWD/master/backup:/backup
+      - $PWD/master/test_db:/root/home/test
     networks:
       default:
         aliases:
           - mysql
 
-  slave_db:
-    container_name: slave
+  indexed_slave_db:
+    container_name: slave-with-index
     image: mysql:8.0
     platform: "linux/x86_64"
     command: --default-authentication-plugin=mysql_native_password
@@ -32,13 +33,32 @@ services:
       MYSQL_USER: slave
       MYSQL_PASSWORD: slave
     volumes:
-      - $PWD/slave/conf.d:/etc/mysql/mysql.conf.d
-      - $PWD/slave/data:/var/lib/mysql
-      - $PWD/slave/log:/var/log/mysql
-      - $PWD/slave/backup:/backup
+      - $PWD/indexed-slave/conf.d:/etc/mysql/mysql.conf.d
+      - $PWD/indexed-slave/data:/var/lib/mysql
+      - $PWD/indexed-slave/log:/var/log/mysql
+      - $PWD/indexed-slave/backup:/backup
     networks:
       default:
         aliases:
           - mysql
 
-    
+  nonindexed_slave_db:
+    container_name: slave-without-index
+    image: mysql:8.0
+    platform: "linux/x86_64"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: slave
+      MYSQL_DATABASE: replication_db
+      MYSQL_USER: cem
+      MYSQL_PASSWORD: slave
+    volumes:
+      - $PWD/nonindexed-slave/conf.d:/etc/mysql/mysql.conf.d
+      - $PWD/nonindexed-slave/data:/var/lib/mysql
+      - $PWD/nonindexed-slave/log:/var/log/mysql
+      - $PWD/nonindexed-slave/backup:/backup
+    networks:
+      default:
+        aliases:
+          - mysql
+
